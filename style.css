@@ -1,0 +1,4 @@
+/* This CSS will hide common video and embed elements */
+video, iframe, embed {
+  display: none !important;
+}
