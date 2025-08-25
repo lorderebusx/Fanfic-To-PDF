@@ -8,10 +8,10 @@ options = {
     '--user-style-sheet': 'style.css',
     '--disable-plugins': '',
     '--disable-smart-shrinking': '',
-    '--javascript-delay': '3000',  # Wait 1000ms for JavaScript to finish
+    '--javascript-delay': '3000',
     '--no-stop-slow-scripts': '',
-    '--load-error-handling': 'skip', # Skip content that fails to load
-    '--quiet': '' # Suppresses console output from wkhtmltopdf
+    '--load-error-handling': 'skip',
+    '--quiet': ''
 }
 
 
