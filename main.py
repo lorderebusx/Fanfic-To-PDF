@@ -15,9 +15,11 @@ options = {
     '--quiet': ''
 }
 
+MAX_RETRIES = 3
+RETRY_DELAY = 5
+
 input_url = input("Please enter the url w/o chapter number: ")
 chapterRange = int(input("Please enter the chapter range (e.g., 10 for chapters 1-10): "))
-
 dirName = input("Please enter the directory name to save the PDFs: ")
 
 outputDir = dirName
@@ -26,27 +28,41 @@ os.makedirs(outputDir, exist_ok=True)
 created_files = []
 
 for i in range(1, chapterRange + 1):
-    try:
-        print(f"\nDEBUG: Loop starting for i = {i}")
 
-        url = f"{input_url}{i}"
-        print(f"DEBUG: Generated URL is: {url}")
+    success = False
 
-        fileName = f"Chapter {i}.pdf"
-        outputPath = os.path.join(outputDir, fileName)
+    for attempt in range(MAX_RETRIES):
+        try:
+            print(f"\nDEBUG: Loop starting for i = {i}")
 
-        print(f"\nConverting {url} to {outputPath}...")
-        pdfkit.from_url(url, outputPath, configuration=config, options=options)
-        print(f"Successfully created {outputPath}")
+            url = f"{input_url}{i}"
+            print(f"DEBUG: Generated URL is: {url}")
 
-        created_files.append(outputPath)
+            fileName = f"Chapter {i}.pdf"
+            outputPath = os.path.join(outputDir, fileName)
 
-    except Exception as e:
-        print(f"\n\nError processing chapter {i}: {e}")
-        continue
+            print(f"\nConverting {url} --- Attempt {attempt + 1} of {MAX_RETRIES}")
+            pdfkit.from_url(url, outputPath, configuration=config, options=options)
+            print(f"Successfully created {outputPath}")
 
-print("\nPausing for 2 seconds...")
-time.sleep(2)
+            created_files.append(outputPath)
+
+            success = True
+            break            
+
+        except Exception as e:
+
+            print(f"\n\nAttempt {attempt + 1} failed for chapter {i}: {e}")
+
+            if attempt < MAX_RETRIES - 1:
+                print(f"Retrying in {RETRY_DELAY} seconds...")
+                time.sleep(RETRY_DELAY)
+            else:
+                print(f"All attempts failed for chapter {i}.")
+    
+    if success:
+        print("\nPausing for 2 seconds...")
+        time.sleep(2)
 
 if created_files:
     print(f"\n--- Starting Merge Process ---")
