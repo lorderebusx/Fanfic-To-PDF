@@ -4,6 +4,18 @@ import pdfkit
 import os
 import time
 from pypdf import PdfWriter
+from os.path import commonprefix
+
+def findLinkPattern(links):
+    if not links:
+        return ""
+
+    pattern = commonprefix(links)
+
+    if '/' in pattern:
+        pattern = pattern[:pattern.rfind('/')+1]
+
+    return pattern
 
 config = pdfkit.configuration(wkhtmltopdf= "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
@@ -21,7 +33,7 @@ MAX_RETRIES = 3
 RETRY_DELAY = 5
 
 indexURL = input("Please enter the URL of the index/table of contents: ")
-linkSelector = "div.entry-content a"
+#linkSelector = "div.entry-content ul li a"
 dirName = input("Please enter the directory name to save the PDFs: ")
 
 if not indexURL.startswith(('http://', 'https://')):
@@ -31,7 +43,22 @@ print(f"\nFetching index page: {indexURL}")
 response = requests.get(indexURL)
 soup = BeautifulSoup(response.content, 'html.parser')
 
-chapterLinks = [a['href'] for a in soup.select(linkSelector) if a.has_attr('href')]
+general_selector = "div.entry-content a"
+linkTags = soup.select(general_selector)
+hrefs = [tag['href'] for tag in linkTags if tag.has_attr('href')]
+
+#chapterLinks = [a['href'] for a in soup.select(linkSelector) if a.has_attr('href')]
+
+linkPattern = findLinkPattern(hrefs)
+
+if not linkPattern:
+    print("Could not determine chapter links. Exiting")
+    exit()
+
+print(f"Determined link pattern: {linkPattern}")
+
+excludeKeywords = ['?share=', 'twitter', 'facebook', 'reddit']
+chapterLinks = [href for href in hrefs if href.startswith(linkPattern) and not any(keyword in href for keyword in excludeKeywords)]
 
 if not chapterLinks:
     print("No chapter links found.")
