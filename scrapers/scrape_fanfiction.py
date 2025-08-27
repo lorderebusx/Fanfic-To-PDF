@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
+import undetected_chromedriver as uc
 
 CONFIG = {
     'pdfkit_config': pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"),
@@ -15,10 +16,15 @@ CONFIG = {
     'retry_delay': 5,
     'pdfkit_options': {
         '--user-style-sheet': 'style.css',
+        '--page-size': 'Letter',         # NEW: Set a standard page size
+        '--margin-top': '0.75in',        # NEW: Add some margins for a book-like feel
+        '--margin-right': '0.75in',
+        '--margin-bottom': '0.75in',
+        '--margin-left': '0.75in',
+        '--disable-javascript': '',
+        '--viewport-size': '1920x1080',
         '--disable-plugins': '',
         '--disable-smart-shrinking': '',
-        '--javascript-delay': '3000',
-        '--no-stop-slow-scripts': '',
         '--load-error-handling': 'skip',
         '--quiet': ''
     },
@@ -51,15 +57,14 @@ def convertChaptersToPDF(driver, chapterURL, outputPath, chapterNum, CONFIG):
             time.sleep(7)
 
             soup = BeautifulSoup(driver.page_source, 'html.parser')
+
+            for s in soup.select('script, style, link[rel="stylesheet"]'):
+                s.decompose()
             
             # 1. Add a <base> tag to resolve relative URLs
             base_tag = soup.new_tag('base', href=chapterURL)
             if soup.head:
                 soup.head.insert(0, base_tag)
-            
-            # 2. (Optional but recommended) Remove script tags
-            for s in soup.select('script'):
-                s.decompose()
             
             htmlContent = str(soup)
 
@@ -136,6 +141,8 @@ def scrape_fanfiction(first_chapter_url, dir_name):
             renderer="Intel Iris OpenGL Engine",
             fix_hairline=True,
         )
+    
+    driver = uc.Chrome()
 
     try:
         total_chapters = getStoryInfo(driver, first_chapter_url)
