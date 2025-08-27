@@ -1,4 +1,36 @@
-/* To hide video, iframe, embed elements */
-video, iframe, embed {
-  display: none !important;
+/* style.css for FanFiction.net */
+
+/* Set a clean background and default font for the whole document */
+body {
+    background-color: white !important;
+    font-family: Georgia, serif;
 }
+
+/* Hide all unnecessary elements */
+#header, 
+#footer, 
+.zmenu, 
+#reviews, 
+#chapter_banners, 
+.a2a_kit, 
+#top, 
+#bottom,
+form[name="review"] {
+    display: none !important;
+}
+
+/* Style the main story text for readability */
+div#storytext {
+    /* Remove the website's width limit */
+    max-width: none !important;
+    
+    /* Set our own margins for a book-like feel */
+    width: 85%;
+    margin: 0 auto; /* Center the text block */
+    padding-top: 2em;
+    
+    /* Improve font and line spacing */
+    font-size: 1.2em !important;
+    line-height: 1.6 !important;
+}
+
