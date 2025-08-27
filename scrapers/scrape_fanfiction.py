@@ -150,16 +150,16 @@ def scrapeFanfiction(firstChapterURL, dirName):
 
     os.makedirs(dirName, exist_ok=True)
     createdPDFfiles = []
-    url_parts = firstChapterURL.split('/')
+    urlParts = firstChapterURL.split('/')
     
     for chapterNum in range(1, totalChapters + 1):
-        url_parts[5] = str(chapterNum)
-        chapter_url = '/'.join(url_parts)
+        urlParts[5] = str(chapterNum)
+        chapterURL = '/'.join(urlParts)
         
-        output_path = os.path.join(dirName, f"Chapter_{chapterNum}.pdf")
+        outputPath = os.path.join(dirName, f"Chapter_{chapterNum}.pdf")
 
-        if convertChaptersToPDF(driver, chapter_url, output_path, chapterNum, CONFIG):
-            createdPDFfiles.append(output_path)
+        if convertChaptersToPDF(driver, chapterURL, outputPath, chapterNum, CONFIG):
+            createdPDFfiles.append(outputPath)
             print(f"Pausing for {CONFIG['pause_between_chapters']} seconds...")
             time.sleep(CONFIG['pause_between_chapters'])
 
