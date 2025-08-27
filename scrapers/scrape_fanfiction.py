@@ -58,9 +58,9 @@ def convertChaptersToPDF(driver, chapterURL, outputPath, chapterNum, CONFIG):
 
             soup = BeautifulSoup(driver.page_source, 'html.parser')
             
-            base_tag = soup.new_tag('base', href=chapterURL)
+            baseTag = soup.new_tag('base', href=chapterURL)
             if soup.head:
-                soup.head.insert(0, base_tag)
+                soup.head.insert(0, baseTag)
 
             for s in soup.select('script'):
                 s.decompose()
@@ -94,24 +94,24 @@ def mergeAndCleanup(pdfFiles, outputDir, finalFilenameBase):
 
     print(f"\n--- Starting Merge Process ---")
     merger = PdfWriter()
-    for pdf_path in pdfFiles:
-        merger.append(pdf_path)
+    for pdfPath in pdfFiles:
+        merger.append(pdfPath)
 
-    final_book_path = os.path.join(outputDir, f"{finalFilenameBase}.pdf")
-    print(f"Writing merged PDF to {final_book_path}...")
-    merger.write(final_book_path)
+    finalBookPath = os.path.join(outputDir, f"{finalFilenameBase}.pdf")
+    print(f"Writing merged PDF to {finalBookPath}...")
+    merger.write(finalBookPath)
     merger.close()
     
     print("\n--- Merging process complete! Cleaning up... ---")
-    for pdf_path in pdfFiles:
-        os.remove(pdf_path)
+    for pdfPath in pdfFiles:
+        os.remove(pdfPath)
     
-    print(f"Script finished. Your merged book is ready at: {final_book_path}")
+    print(f"Script finished. Your merged book is ready at: {finalBookPath}")
 
-def scrape_fanfiction(first_chapter_url, dir_name):
+def scrapeFanfiction(firstChapterURL, dirName):
 
-    if not first_chapter_url.startswith(('http://', 'https://')):
-        first_chapter_url = 'https://' + first_chapter_url
+    if not firstChapterURL.startswith(('http://', 'https://')):
+        firstChapterURL = 'https://' + firstChapterURL
 
     #session = requests.Session()
 
@@ -131,37 +131,37 @@ def scrape_fanfiction(first_chapter_url, dir_name):
     driver = webdriver.Chrome(service = service, options = options)
 
     stealth(driver,
-            languages=["en-US", "en"],
-            vendor="Google Inc.",
-            platform="Win32",
-            webgl_vendor="Intel Inc.",
-            renderer="Intel Iris OpenGL Engine",
+            languages = ["en-US", "en"],
+            vendor = "Google Inc.",
+            platform = "Win32",
+            webgl_vendor = "Intel Inc.",
+            renderer = "Intel Iris OpenGL Engine",
             fix_hairline=True,
         )
     
     driver = uc.Chrome()
 
     try:
-        total_chapters = getStoryInfo(driver, first_chapter_url)
+        totalChapters = getStoryInfo(driver, firstChapterURL)
     except Exception as e:
         print(f"Error: Could not fetch initial story page. {e}")
         driver.quit()
         return
 
-    os.makedirs(dir_name, exist_ok=True)
-    created_pdf_files = []
-    url_parts = first_chapter_url.split('/')
+    os.makedirs(dirName, exist_ok=True)
+    createdPDFfiles = []
+    url_parts = firstChapterURL.split('/')
     
-    for chapter_num in range(1, total_chapters + 1):
-        url_parts[5] = str(chapter_num)
+    for chapterNum in range(1, totalChapters + 1):
+        url_parts[5] = str(chapterNum)
         chapter_url = '/'.join(url_parts)
         
-        output_path = os.path.join(dir_name, f"Chapter_{chapter_num}.pdf")
+        output_path = os.path.join(dirName, f"Chapter_{chapterNum}.pdf")
 
-        if convertChaptersToPDF(driver, chapter_url, output_path, chapter_num, CONFIG):
-            created_pdf_files.append(output_path)
+        if convertChaptersToPDF(driver, chapter_url, output_path, chapterNum, CONFIG):
+            createdPDFfiles.append(output_path)
             print(f"Pausing for {CONFIG['pause_between_chapters']} seconds...")
             time.sleep(CONFIG['pause_between_chapters'])
 
     driver.quit
-    mergeAndCleanup(created_pdf_files, dir_name, os.path.basename(dir_name))
+    mergeAndCleanup(createdPDFfiles, dirName, os.path.basename(dirName))
