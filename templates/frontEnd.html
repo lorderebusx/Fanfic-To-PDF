@@ -7,7 +7,7 @@
 </head>
 <body>
     <div class="form-container">
-        <form class="form" method="post">
+        <form class="form" id="scraper-form">
             <h1 class="form-title">Fanfic to PDF Downloader</h1>
             
             <div class="form-group">
@@ -18,19 +18,62 @@
                     <option value="general">General Link</option>
                 </select>
             </div>
-            <br>
+            
             <div class="form-group">
                 <label for="url">Enter Story URL:</label>
                 <input type="text" id="url" name="url" required>
             </div>
-            <br>
+
             <div class="form-group">
                 <label for="dir_name">Enter Directory/Book Name:</label>
-                <input type="text" id="dirname" name="dirname" required>
+                <input type="text" id="dirName" name="dirName" required>
             </div>
 
-            <button type="submit" class="form-button">Download</button>
+            <button type="submit" class="form-button" id="download-button">Download</button>
+
+            <p id="status-message" style="text-align: center; margin-top: 20px;"></p>
         </form>
     </div>
+
+    <script>
+        const form = document.getElementById('scraper-form');
+        const statusMessage = document.getElementById('status-message');
+        const downloadButton = document.getElementById('download-button');
+
+        form.addEventListener('submit', function(event) {
+            // Prevent the default page reload
+            event.preventDefault();
+
+            // Display a message and disable the button
+            statusMessage.textContent = 'Scraping process started! Check the console for progress...';
+            statusMessage.style.color = '#9370DB'; // Purple color
+            downloadButton.disabled = true;
+            downloadButton.textContent = 'Processing...';
+
+            // Create a FormData object from the form
+            const formData = new FormData(form);
+
+            // Send the data to the Flask server in the background
+            fetch('/', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // When the server responds, update the status
+                statusMessage.textContent = data.message;
+                statusMessage.style.color = data.status === 'success' ? '#28a745' : '#dc3545'; // Green for success, red for error
+                downloadButton.disabled = false;
+                downloadButton.textContent = 'Download';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                statusMessage.textContent = 'An error occurred. Check console.';
+                statusMessage.style.color = '#dc3545'; // Red for error
+                downloadButton.disabled = false;
+                downloadButton.textContent = 'Download';
+            });
+        });
+    </script>
 </body>
 </html>

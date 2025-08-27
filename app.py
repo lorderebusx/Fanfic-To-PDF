@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from scrapers.scrape_fanfiction import scrapeFanfiction
+from scrapers.scrape_general import scrapeGeneral
 
 app = Flask(__name__)
 
@@ -9,7 +10,7 @@ def index():
         # Get data from the form
         siteChoice = request.form['site']
         storyUrl = request.form['url']
-        dirName = request.form['dirname']
+        dirName = request.form['dirName']
 
         print(f"Site selected: {siteChoice}")
         print(f"URL entered: {storyUrl}")
@@ -24,9 +25,12 @@ def index():
             # scrape_ao3(story_url) # You would call the AO3-specific function here
         elif siteChoice == 'general':
             print("Starting general scraper...")
-            # scrape_general(story_url) # You would call the general function here
+            scrapeGeneral(storyUrl, dirName)
 
-        return "Scraping process started! Check the console for progress."
+        return jsonify({
+            'status': 'success', 
+            'message': 'Process completed successfully! Check console.'
+        })
 
     # For a GET request, just show the page
     return render_template('frontEnd.html')

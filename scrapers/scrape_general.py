@@ -6,129 +6,99 @@ import time
 from pypdf import PdfWriter
 from os.path import commonprefix
 
+CONFIG = {
+    'pdfkitConfig': pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"),
+    'pdfkitOptions': {
+        '--user-style-sheet': 'static/style.css',
+        '--disable-plugins': '',
+        '--disable-smart-shrinking': '',
+        '--javascript-delay': '3000',
+        '--no-stop-slow-scripts': '',
+        '--load-error-handling': 'skip',
+        '--quiet': ''
+    },
+    'maxRetries': 3,
+    'retryDelay': 5,
+    'pauseBetweenChapters': 2
+}
+
 def findLinkPattern(links):
     if not links:
         return ""
-
     pattern = commonprefix(links)
-
     if '/' in pattern:
         pattern = pattern[:pattern.rfind('/')+1]
-
     return pattern
 
-config = pdfkit.configuration(wkhtmltopdf= "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+def scrapeGeneral(indexURL, dirName):
+    """Scrapes a series of links from a general index page."""
+    if not indexURL.startswith(('http://', 'https://')):
+        indexURL = 'https://' + indexURL
 
-options = {
-    '--user-style-sheet': 'style.css',
-    '--disable-plugins': '',
-    '--disable-smart-shrinking': '',
-    '--javascript-delay': '3000',
-    '--no-stop-slow-scripts': '',
-    '--load-error-handling': 'skip',
-    '--quiet': ''
-}
+    print(f"\nFetching index page: {indexURL}")
+    response = requests.get(indexURL)
+    soup = BeautifulSoup(response.content, 'html.parser')
 
-MAX_RETRIES = 3
-RETRY_DELAY = 5
+    generalSelector = "div.entry-content a"
+    linkTags = soup.select(generalSelector)
+    hrefs = [tag['href'] for tag in linkTags if tag.has_attr('href')]
 
-indexURL = input("Please enter the URL of the index/table of contents: ")
-#linkSelector = "div.entry-content ul li a"
-dirName = input("Please enter the directory name to save the PDFs: ")
+    linkPattern = findLinkPattern(hrefs)
+    if not linkPattern:
+        print("Could not determine a common link pattern. Exiting.")
+        return
 
-if not indexURL.startswith(('http://', 'https://')):
-    indexURL = 'https://' + indexURL
+    print(f"Determined link pattern: {linkPattern}")
+    excludeKeywords = ['?share=', 'twitter', 'facebook', 'reddit']
+    chapterLinks = [href for href in hrefs if href.startswith(linkPattern) and not any(keyword in href for keyword in excludeKeywords)]
 
-print(f"\nFetching index page: {indexURL}")
-response = requests.get(indexURL)
-soup = BeautifulSoup(response.content, 'html.parser')
+    if not chapterLinks:
+        print("No chapter links found matching the pattern.")
+        return
 
-general_selector = "div.entry-content a"
-linkTags = soup.select(general_selector)
-hrefs = [tag['href'] for tag in linkTags if tag.has_attr('href')]
+    print(f"Found {len(chapterLinks)} chapter links. Starting PDF conversion...")
+    os.makedirs(dirName, exist_ok=True)
+    createdFiles = []
 
-#chapterLinks = [a['href'] for a in soup.select(linkSelector) if a.has_attr('href')]
+    for i, link in enumerate(chapterLinks):
+        success = False
+        chapterNum = i + 1
+        for attempt in range(CONFIG['maxRetries']):
+            try:
+                chapterURL = link
+                fileName = f"Chapter_{chapterNum}.pdf"
+                outputPath = os.path.join(dirName, fileName)
+                print(f"\nConverting {chapterURL} (Attempt {attempt + 1})...")
+                pdfkit.from_url(chapterURL, outputPath, configuration=CONFIG['pdfkitConfig'], options=CONFIG['pdfkitOptions'])
+                print(f"Successfully created {outputPath}")
+                createdFiles.append(outputPath)
+                success = True
+                break
+            except Exception as e:
+                print(f"Attempt {attempt + 1} failed for chapter {chapterNum}: {e}")
+                if attempt < CONFIG['maxRetries'] - 1:
+                    print(f"Retrying in {CONFIG['retryDelay']} seconds...")
+                    time.sleep(CONFIG['retryDelay'])
+                else:
+                    print(f"All attempts failed for chapter {chapterNum}.")
+        
+        if success:
+            print(f"Pausing for {CONFIG['pauseBetweenChapters']} seconds...")
+            time.sleep(CONFIG['pauseBetweenChapters'])
 
-linkPattern = findLinkPattern(hrefs)
-
-if not linkPattern:
-    print("Could not determine chapter links. Exiting")
-    exit()
-
-print(f"Determined link pattern: {linkPattern}")
-
-excludeKeywords = ['?share=', 'twitter', 'facebook', 'reddit']
-chapterLinks = [href for href in hrefs if href.startswith(linkPattern) and not any(keyword in href for keyword in excludeKeywords)]
-
-if not chapterLinks:
-    print("No chapter links found.")
-    exit()
-
-print(f"Found {len(chapterLinks)} chapter links. Starting PDF conversion...")
-
-outputDir = dirName
-os.makedirs(outputDir, exist_ok=True)
-
-created_files = []
-
-for i, link in enumerate(chapterLinks):
-
-    success = False
-    chapterNum = i + 1
-
-    for attempt in range(MAX_RETRIES):
-        try:
-            chapterURL = link
-            fileName = f"Chapter {chapterNum}.pdf"
-            outputPath = os.path.join(outputDir, fileName)
-
-            print(f"\nConverting {chapterURL} --- Attempt {attempt + 1} of {MAX_RETRIES}")
-            pdfkit.from_url(chapterURL, outputPath, configuration=config, options=options)
-            print(f"Successfully created {outputPath}")
-
-            created_files.append(outputPath)
-
-            success = True
-            break            
-
-        except Exception as e:
-
-            print(f"\n\nAttempt {attempt + 1} failed for chapter {i}: {e}")
-
-            if attempt < MAX_RETRIES - 1:
-                print(f"Retrying in {RETRY_DELAY} seconds...")
-                time.sleep(RETRY_DELAY)
-            else:
-                print(f"All attempts failed for chapter {chapterNum}.")
-    
-    if success:
-        print("\nPausing for 2 seconds...")
-        time.sleep(2)
-
-if created_files:
-    print(f"\n--- Starting Merge Process ---")
-
-    merger = PdfWriter()
-
-    for pdf in created_files:
-        print(f"Merging {pdf}...")
-        merger.append(pdf)
-
-    baseFileName = os.path.basename(dirName)
-
-    merged_output_path = os.path.join(outputDir, f"{baseFileName}.pdf")
-
-    print(f"\nWriting merged PDF to {merged_output_path}...")
-    merger.write(merged_output_path)
-    merger.close()
-
-    print(f"\n--- Merging process complete! ---")
-    time.sleep(0.2)
-    print(f"--- Beginning clean-up ---")
-
-    for pdf in created_files:
-        os.remove(pdf)
-
-    print(f"\n--- Clean-up complete! ---")
-else:
-    print("\nNo files were created, so no merging was performed.")
+    if createdFiles:
+        print("\n--- Starting Merge Process ---")
+        merger = PdfWriter()
+        for pdf in createdFiles:
+            merger.append(pdf)
+        baseFileName = os.path.basename(dirName)
+        mergedOutputPath = os.path.join(dirName, f"{baseFileName}.pdf")
+        print(f"Writing merged PDF to {mergedOutputPath}...")
+        merger.write(mergedOutputPath)
+        merger.close()
+        print("\n--- Merging process complete! Cleaning up... ---")
+        for pdf in createdFiles:
+            os.remove(pdf)
+        print(f"Script finished. Your merged book is at: {mergedOutputPath}")
+    else:
+        print("\nScript finished, but no PDFs were created to merge.")
