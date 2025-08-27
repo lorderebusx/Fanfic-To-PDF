@@ -1,12 +1,12 @@
 /* style.css for FanFiction.net */
 
-/* Set a clean background and default font for the whole document */
+/* Set a clean white background and a classic book font */
 body {
     background-color: white !important;
     font-family: Georgia, serif;
 }
 
-/* Hide all unnecessary elements */
+/* Hide all unnecessary website elements from the PDF */
 #header, 
 #footer, 
 .zmenu, 
@@ -15,22 +15,22 @@ body {
 .a2a_kit, 
 #top, 
 #bottom,
-form[name="review"] {
+form[name="review"],
+.lc {
     display: none !important;
 }
 
-/* Style the main story text for readability */
+/* Style the main story text for excellent readability */
 div#storytext {
-    /* Remove the website's width limit */
+    /* Remove the website's narrow width limit */
     max-width: none !important;
     
     /* Set our own margins for a book-like feel */
     width: 85%;
-    margin: 0 auto; /* Center the text block */
+    margin: 0 auto; /* Center the text block on the page */
     padding-top: 2em;
     
-    /* Improve font and line spacing */
+    /* Improve font size and line spacing */
     font-size: 1.2em !important;
     line-height: 1.6 !important;
 }
-
