@@ -15,9 +15,9 @@ CONFIG = {
     'max_retries': 3,
     'retry_delay': 5,
     'pdfkit_options': {
-        '--user-style-sheet': 'style.css',
-        '--page-size': 'Letter',         # NEW: Set a standard page size
-        '--margin-top': '0.75in',        # NEW: Add some margins for a book-like feel
+        '--user-style-sheet': 'static/style.css',
+        '--page-size': 'Letter',
+        '--margin-top': '0.75in',
         '--margin-right': '0.75in',
         '--margin-bottom': '0.75in',
         '--margin-left': '0.75in',
@@ -35,7 +35,7 @@ def getStoryInfo(driver, firstChapterURL):
 
     print(f"Fetching story information from: {firstChapterURL}")
     driver.get(firstChapterURL)
-    time.sleep(3) # Wait for page to load
+    time.sleep(3) 
     soup = BeautifulSoup(driver.page_source, 'html.parser')
 
     try:
@@ -57,18 +57,15 @@ def convertChaptersToPDF(driver, chapterURL, outputPath, chapterNum, CONFIG):
             time.sleep(7)
 
             soup = BeautifulSoup(driver.page_source, 'html.parser')
-
-            for s in soup.select('script, style, link[rel="stylesheet"]'):
-                s.decompose()
             
-            # 1. Add a <base> tag to resolve relative URLs
             base_tag = soup.new_tag('base', href=chapterURL)
             if soup.head:
                 soup.head.insert(0, base_tag)
+
+            for s in soup.select('script'):
+                s.decompose()
             
             htmlContent = str(soup)
-
-            #htmlContent = driver.page_source
 
             print(f"\nConverting {chapterURL} (Chapter {chapterNum}, Attempt {attempt + 1})...")
             pdfkit.from_string(htmlContent, outputPath, configuration=CONFIG['pdfkit_config'], options=CONFIG['pdfkit_options'])
@@ -86,7 +83,7 @@ def convertChaptersToPDF(driver, chapterURL, outputPath, chapterNum, CONFIG):
                 time.sleep(CONFIG['retry_delay'])
             else:
                 print(f"All attempts failed for chapter {chapterNum}. Moving on.")
-                return False # Failure
+                return False
 
 
 
@@ -123,7 +120,7 @@ def scrape_fanfiction(first_chapter_url, dir_name):
     options = webdriver.ChromeOptions()
     profilePath = r"C:\Users\shubh\AppData\Local\Google\Chrome\User Data\Default"
     options.add_argument(f"user-data-dir={profilePath}")
-    options.add_argument("start-maximized")
+    options.add_argument("start-minimized")
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
     options.add_argument('--disable-blink-features=AutomationControlled')
