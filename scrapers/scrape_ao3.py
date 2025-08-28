@@ -3,7 +3,6 @@ import os
 import time
 from urllib.parse import urlparse, urlunparse
 
-# Re-using the same configuration dictionary structure
 CONFIG = {
     'pdfkitConfig': pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"),
     'pdfkitOptions': {
@@ -29,25 +28,21 @@ def scrapeAO3(workURL, dirName):
     if not workURL.startswith(('http://', 'https://')):
         workURL = 'https://' + workURL
 
-    # Construct the URL to view the entire work on one page
     parsedUrl = urlparse(workURL)
-    # Rebuild the URL without any queries or fragments, keeping only the core path
     cleanUrlPath = parsedUrl.path
     fullWorkUrl = urlunparse((parsedUrl.scheme, parsedUrl.netloc, cleanUrlPath, '', 'view_full_work=true', ''))
 
     print(f"Fetching the entire work from: {fullWorkUrl}")
 
     os.makedirs(dirName, exist_ok=True)
-    # The output file will just be the directory name with a .pdf extension
     outputPath = os.path.join(dirName, f"{os.path.basename(dirName)}.pdf")
 
     for attempt in range(CONFIG['maxRetries']):
         try:
             print(f"Converting to PDF (Attempt {attempt + 1} of {CONFIG['maxRetries']})...")
-            # We can use from_url directly since AO3 is less restrictive than FF.net
             pdfkit.from_url(fullWorkUrl, outputPath, configuration=CONFIG['pdfkitConfig'])
             print(f"Successfully created book at: {outputPath}")
-            return # Exit the function on success
+            return
         except Exception as e:
             print(f"Attempt {attempt + 1} failed: {e}")
             if attempt < CONFIG['maxRetries'] - 1:

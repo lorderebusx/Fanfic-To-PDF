@@ -1,18 +1,14 @@
-/* static/style.css */
-
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap');
 
-/* Define a color palette using CSS variables for easy changes */
 :root {
-    --background-color: #121212; /* Very dark gray (almost black) */
-    --surface-color: #1e1e1e;   /* Slightly lighter gray for the form */
-    --primary-color: #362061;    /* Medium Purple for accents */
-    --primary-hover-color: #7a5fb2; /* Darker purple for hover */
-    --text-color: #e0e0e0;       /* Light gray for text */
+    --background-color: #121212;
+    --surface-color: #1e1e1e;
+    --primary-color: #362061;
+    --primary-hover-color: #7a5fb2;
+    --text-color: #e0e0e0;  
     --border-color: #444;
 }
 
-/* Basic page styling */
 body {
     font-family: 'Space Grotesk', sans-serif;
     background-color: var(--background-color);
@@ -25,7 +21,6 @@ body {
     height: 100vh;
 }
 
-/* Container for the form */
 .form-container {
     background: var(--surface-color);
     padding: 43px;
@@ -46,10 +41,9 @@ body {
     font-weight: bold;
     text-align: center;
     margin-bottom: 30px;
-    color: white; /* Brighter color for the title */
+    color: white; 
 }
 
-/* Grouping for labels and inputs */
 .form-group {
     margin-bottom: 20px;
     display: flex;
@@ -62,7 +56,6 @@ body {
     color: var(--text-color);
 }
 
-/* Styling for inputs and select dropdowns */
 .form-group input,
 .form-group select {
     font-family: inherit;
@@ -80,7 +73,6 @@ body {
     border-color: var(--primary-color);
 }
 
-/* Styling for the submit button */
 .form-button {
     font-family: 'Space Grotesk', sans-serif;
     padding: 15px;
@@ -98,27 +90,21 @@ body {
     background-color: var(--primary-hover-color);
 }
 
-/* In static/style.css */
-
 .site-chooser {
-    /* CHANGED: Use the robust table layout model */
     display: table;
     width: 100%;
-    table-layout: fixed; /* Ensures columns are of equal width */
-    border-spacing: 0; /* Removes any space between cells */
+    table-layout: fixed;
+    border-spacing: 0;
     border-radius: 5px;
     overflow: hidden;
     border: 1px solid var(--border-color);
 }
 
-/* Hide the actual radio buttons */
 .site-chooser input[type="radio"] {
     display: none;
 }
 
-/* Style the labels to look like buttons */
 .site-chooser label {
-    /* CHANGED: Make each label a table cell */
     display: table-cell;
     text-align: center;
     padding: 12px;
@@ -126,13 +112,10 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     transition: background-color 0.2s, color 0.2s;
-    /* Add a border between the buttons */
     border-right: 1px solid var(--border-color);
-    /* NEW: Vertically center text within the cell */
     vertical-align: middle;
 }
 
-/* Remove the border from the very last button */
 .site-chooser label:last-child {
     border-right: none;
 }
@@ -141,7 +124,6 @@ body {
     background-color: #333;
 }
 
-/* Style for the selected button */
 .site-chooser input[type="radio"]:checked + label {
     background-color: var(--primary-color);
     color: white;

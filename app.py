@@ -8,7 +8,6 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])    
 def index():
     if request.method == 'POST':
-        # Get data from the form
         siteChoice = request.form['site']
         storyUrl = request.form['url']
         dirName = request.form['dirName']
@@ -17,10 +16,9 @@ def index():
         print(f"URL entered: {storyUrl}")
         print(f"Directory name entered: {dirName}")
 
-        # --- This is the core logic ---
         if siteChoice == 'fanfiction':
             print("Starting FanFiction.net scraper...")
-            scrapeFanfiction(storyUrl, dirName) # You would call your actual function here
+            scrapeFanfiction(storyUrl, dirName)
         elif siteChoice == 'ao3':
             print("Starting ArchiveOfOurOwn.org scraper...")
             scrapeAO3(storyUrl, dirName)
@@ -33,7 +31,6 @@ def index():
             'message': 'Process completed successfully! Check console.'
         })
 
-    # For a GET request, just show the page
     return render_template('frontEnd.html')
 
 @app.route('/log_selection', methods=['POST'])
@@ -41,7 +38,7 @@ def log_selection():
     data = request.get_json()
     site = data.get('site')
     if site:
-        print(f"User selected: {site}") # This prints to your terminal
+        print(f"User selected: {site}")
     return jsonify({'status': 'logged'})
 
 if __name__ == '__main__':

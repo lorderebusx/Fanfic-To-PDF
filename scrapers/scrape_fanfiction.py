@@ -5,7 +5,6 @@ import time
 from pypdf import PdfWriter
 import undetected_chromedriver as uc
 
-# All configuration is grouped at the top
 CONFIG = {
     'pdfkitConfig': pdfkit.configuration(wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe"),
     'maxRetries': 3,
@@ -55,7 +54,6 @@ def convertChaptersToPDF(driver, chapterUrl, outputPath, chapterNum):
             if not storyContentDiv:
                 raise Exception("Could not find story content div ('div#storytext').")
             
-            # Build a new, clean HTML document
             htmlBody = str(storyContentDiv)
             cleanHtml = f"""
             <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Chapter {chapterNum}</title>
@@ -104,14 +102,11 @@ def scrapeFanfiction(firstChapterUrl, dirName):
 
     print("Initializing automated browser...")
 
-    # CORRECTED: Unified driver setup.
-    # All options are created and then passed to uc.Chrome()
     options = uc.ChromeOptions()
     profilePath = r"C:\Users\shubh\AppData\Local\Google\Chrome\User Data\Default"
     options.add_argument(f"--user-data-dir={profilePath}")
-    options.add_argument("--start-minimized") # Use -- to start arguments
+    options.add_argument("--start-minimized")
 
-    # Initialize one driver with all the correct options
     driver = uc.Chrome(options=options)
 
     try:
@@ -139,6 +134,5 @@ def scrapeFanfiction(firstChapterUrl, dirName):
             print(f"Pausing for {CONFIG['pauseBetweenChapters']} seconds...")
             time.sleep(CONFIG['pauseBetweenChapters'])
 
-    # CORRECTED: Added parentheses to properly call the quit function
     driver.quit()
     mergeAndCleanup(createdPDFFiles, dirName, os.path.basename(dirName))

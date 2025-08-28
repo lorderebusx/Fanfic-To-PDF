@@ -56,7 +56,6 @@
                 body: JSON.stringify({ site: selectedValue })
             });
         } catch (error) {
-            // If the request fails, log the error to the browser's console
             console.error('Error logging selection:', error);
         }
     }
@@ -65,41 +64,35 @@
             button.addEventListener('change', function() {
                 const selectedSite = this.value;
                 console.log(`Browser console: Site selected - ${selectedSite}`);
-                // Call our new async function
                 logSelection(selectedSite);
             });
         });
 
         form.addEventListener('submit', function(event) {
-            // Prevent the default page reload
             event.preventDefault();
 
-            // Display a message and disable the button
             statusMessage.textContent = 'Scraping process started! Check the console for progress...';
-            statusMessage.style.color = '#9370DB'; // Purple color
+            statusMessage.style.color = '#9370DB';
             downloadButton.disabled = true;
             downloadButton.textContent = 'Processing...';
 
-            // Create a FormData object from the form
             const formData = new FormData(form);
 
-            // Send the data to the Flask server in the background
             fetch('/', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
-                // When the server responds, update the status
                 statusMessage.textContent = data.message;
-                statusMessage.style.color = data.status === 'success' ? '#28a745' : '#dc3545'; // Green for success, red for error
+                statusMessage.style.color = data.status === 'success' ? '#28a745' : '#dc3545';
                 downloadButton.disabled = false;
                 downloadButton.textContent = 'Download';
             })
             .catch(error => {
                 console.error('Error:', error);
                 statusMessage.textContent = 'An error occurred. Check console.';
-                statusMessage.style.color = '#dc3545'; // Red for error
+                statusMessage.style.color = '#dc3545';
                 downloadButton.disabled = false;
                 downloadButton.textContent = 'Download';
             });
