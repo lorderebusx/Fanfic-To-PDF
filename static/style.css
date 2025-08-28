@@ -28,7 +28,7 @@ body {
 /* Container for the form */
 .form-container {
     background: var(--surface-color);
-    padding: 40px;
+    padding: 43px;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     width: 100%;
@@ -47,6 +47,55 @@ body {
     text-align: center;
     margin-bottom: 30px;
     color: white; /* Brighter color for the title */
+}
+
+.site-chooser {
+    display: flex;
+}
+
+/* Hide the actual radio buttons */
+.site-chooser input[type="radio"] {
+    display: none;
+}
+
+/* Style the labels to look like buttons */
+.site-chooser label {
+    flex-grow: 1;
+    text-align: center;
+    padding: 12px;
+    cursor: pointer;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.2s;
+
+    /* Apply borders to the top, bottom, and right of every button */
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+}
+
+/* Apply a left border ONLY to the first button */
+.site-chooser label:first-child {
+    border-left: 1px solid var(--border-color);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+/* Apply rounded corners to the last button */
+.site-chooser label:last-child {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.site-chooser label:hover {
+    background-color: #333;
+}
+
+/* Style for the selected button */
+.site-chooser input[type="radio"]:checked + label {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: bold;
 }
 
 /* Grouping for labels and inputs */

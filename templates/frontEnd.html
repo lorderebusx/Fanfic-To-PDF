@@ -11,12 +11,17 @@
             <h1 class="form-title">Fanfic to PDF Downloader</h1>
             
             <div class="form-group">
-                <label for="site">Choose a website:</label>
-                <select name="site" id="site">
-                    <option value="fanfiction">FanFiction.net</option>
-                    <option value="ao3">ArchiveOfOurOwn.org</option>
-                    <option value="general">General Link</option>
-                </select>
+                <label>Choose a website:</label>
+                <div class="site-chooser">
+                    <input type="radio" id="fanfiction" name="site" value="fanfiction" checked>
+                    <label for="fanfiction">FanFiction.net</label>
+                    
+                    <input type="radio" id="ao3" name="site" value="ao3">
+                    <label for="ao3">AO3</label>
+                    
+                    <input type="radio" id="general" name="site" value="general">
+                    <label for="general">General</label>
+                </div>
             </div>
             
             <div class="form-group">
@@ -25,7 +30,7 @@
             </div>
 
             <div class="form-group">
-                <label for="dir_name">Enter Directory/Book Name:</label>
+                <label for="dirName">Enter Directory/Book Name:</label>
                 <input type="text" id="dirName" name="dirName" required>
             </div>
 
