@@ -1,0 +1,8 @@
+Flask
+requests
+beautifulsoup4
+pdfkit
+pypdf
+selenium
+undetected-chromedriver
+setuptools
