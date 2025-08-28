@@ -2,8 +2,6 @@
 
 A Flask-based web application that downloads stories from websites like FanFiction.net and Archive of Our Own (AO3) and converts them into a single, clean PDF file.
 
-![Screenshot of the UI](screenshot.jpeg)
-
 ---
 
 ## Features
