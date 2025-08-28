@@ -36,5 +36,13 @@ def index():
     # For a GET request, just show the page
     return render_template('frontEnd.html')
 
+@app.route('/log_selection', methods=['POST'])
+def log_selection():
+    data = request.get_json()
+    site = data.get('site')
+    if site:
+        print(f"User selected: {site}") # This prints to your terminal
+    return jsonify({'status': 'logged'})
+
 if __name__ == '__main__':
     app.run(debug=True)

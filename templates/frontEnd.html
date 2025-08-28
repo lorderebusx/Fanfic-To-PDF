@@ -44,6 +44,31 @@
         const form = document.getElementById('scraper-form');
         const statusMessage = document.getElementById('status-message');
         const downloadButton = document.getElementById('download-button');
+        const siteButtons = document.querySelectorAll('.site-chooser input[type="radio"]');
+
+        async function logSelection(selectedValue) {
+        try {
+            await fetch('/log_selection', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ site: selectedValue })
+            });
+        } catch (error) {
+            // If the request fails, log the error to the browser's console
+            console.error('Error logging selection:', error);
+        }
+    }
+
+        siteButtons.forEach(button => {
+            button.addEventListener('change', function() {
+                const selectedSite = this.value;
+                console.log(`Browser console: Site selected - ${selectedSite}`);
+                // Call our new async function
+                logSelection(selectedSite);
+            });
+        });
 
         form.addEventListener('submit', function(event) {
             // Prevent the default page reload
